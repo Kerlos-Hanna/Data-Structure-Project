@@ -2,58 +2,23 @@ package com.example.social_networks.requirements_level1.operations.minify_xml;
 
 public class Minify_XML_Size {
 
-    private String xml;
-
-    public Minify_XML_Size(String xml) {
-        if (xml == null) {
-            throw new IllegalArgumentException("XML input cannot be null");
-        }
-        this.xml = xml;
-    }
-
-    public String minify_size() {
-        // Removes whitespace
-        return xml.replaceAll(">\\s+<", "><");
-    }
+    /**
+     * Minifies XML by removing unnecessary whitespaces and newlines
+     * without changing the XML structure.
+     */
     
-     public static void main(String[] args) {
-        /////////////////////////////////////////////////////////////////
-        if (args.length < 3 || !args[0].equals("mini")) {
-            System.out.println("Usage: xml_editor mini -i input.xml -o output.xml");
-            return;
+    public static String minify(String xml) {
+
+        if (xml == null || xml.isBlank()) {
+            throw new IllegalArgumentException("XML input cannot be null or empty");
         }
 
-        String input = null;
-        String output = null;
+        // Remove whitespace between tags
+        xml = xml.replaceAll(">\\s+<", "><");
 
-        for (int i = 1; i < args.length; i++) {
-            if (args[i].equals("-i"))
-                input = args[++i];
-            else if (args[i].equals("-o"))
-                output = args[++i];
-        }
+        // Trim leading and trailing whitespace
+        xml = xml.trim();
 
-        if (input == null || output == null) {
-            System.out.println("Missing input or output file.");
-            return;
-        }
-        
-        
-        //////////////////////////remove the above block to test////////////////
-        try {
-            /*
-            file loading here
-            */
-            String data = "<root>test</root> <path> </path>"; //put input string here;
-            Minify_XML_Size minifier = new Minify_XML_Size(data);
-            data = minifier.minify_size();
-            /*
-            file creation
-            */
-            System.out.println(data);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        
-     }
+        return xml;
+    }
 }
