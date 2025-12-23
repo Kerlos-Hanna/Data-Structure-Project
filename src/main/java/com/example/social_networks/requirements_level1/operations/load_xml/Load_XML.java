@@ -1,47 +1,31 @@
 package com.example.social_networks.requirements_level1.operations.load_xml;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
-public class Load_XML extends Application {
+public class Load_XML {
 
-    @Override
-    public void start(Stage stage) {
-        Label result = new Label("No file selected");
+    public static String load(Stage stage) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choose a TXT File");
 
-        Button chooseBtn = new Button("Choose XML File");
-        chooseBtn.setOnAction(e -> {
-            FileChooser chooser = new FileChooser();
-            chooser.setTitle("Choose an XML File");
-            chooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("XML Files (*.xml)", "*.xml")
-            );
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Text Files (.txt)", ".txt")
+        );
 
-            File file = chooser.showOpenDialog(stage);
-            if (file == null) {
-                result.setText("No file selected");
-            } else {
-                result.setText("Selected: " + file.getAbsolutePath());
-                System.out.println("Selected XML: " + file.getAbsolutePath());
-            }
-        });
+        File file = chooser.showOpenDialog(stage);
+        if (file == null) {
+            return null;
+        }
 
-        VBox root = new VBox(10, chooseBtn, result);
-        root.setStyle("-fx-padding: 15;");
-
-        stage.setTitle("Task 9 - XML File Chooser");
-        stage.setScene(new Scene(root, 520, 140));
-        stage.show();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
+        try {
+            return Files.readString(file.toPath());
+        } catch (IOException e) {
+            return "Error reading TXT file!";
+        }
     }
 }
-
