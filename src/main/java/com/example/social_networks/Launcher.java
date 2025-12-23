@@ -11,36 +11,59 @@ import com.example.social_networks.requirements_level1.operations.minify_xml.Min
 import com.example.social_networks.requirements_level1.operations.save_output_xml.OutputSaver;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
-import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 
 public class Launcher extends Application {
 
-    TextArea outputArea;
     TextArea inputArea = new TextArea();
+    VBox lineNumbersBox = new VBox();
+    ScrollPane lineNumbersScroll = new ScrollPane();
+    TextArea outputArea = new TextArea();
     Check_XML_Consistency checker = new Check_XML_Consistency();
 
     @Override
     public void start(Stage primaryStage) {
 
-        // ===== XML Input Area =====
-        Label inputLabel = new Label("XML Input");
-        inputArea.setPromptText("Paste XML here...");
-        inputArea.setPrefHeight(200);
+        // ===== Input TextArea =====
+        inputArea.setWrapText(false);
+        inputArea.setStyle(
+                "-fx-control-inner-background: white;" +
+                        "-fx-background-insets: 0;" +
+                        "-fx-background-color: white;" +
+                        "-fx-border-color: lightgray;" +
+                        "-fx-padding: 6 10 0 6;" +        // ✅ ALIGN PADDING
+                        "-fx-font-family: monospace;" +
+                        "-fx-background-radius: 0;" +
+                        "-fx-focus-color: transparent;" +
+                        "-fx-faint-focus-color: transparent;"
+        );
+        inputArea.setPrefHeight(300);
 
-        // ===== Output Area (Read-only) =====
+        // ===== Line Numbers Box =====
+        lineNumbersBox.setPadding(new Insets(6, 10, 0, 6)); // ✅ ALIGN WITH TEXTAREA
+        lineNumbersBox.setStyle("-fx-background-color: #f0f0f0;");
+
+        // ===== Line Numbers Scroll (NO SCROLLBAR) =====
+        lineNumbersScroll.setContent(lineNumbersBox);
+        lineNumbersScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        lineNumbersScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        lineNumbersScroll.setFitToWidth(true);
+        lineNumbersScroll.setPrefWidth(45);
+        lineNumbersScroll.setStyle("-fx-background: #f0f0f0;");
+
+        // ===== Update line numbers dynamically =====
+        inputArea.textProperty().addListener((obs, oldText, newText) -> updateLineNumbers());
+
+        // ===== Combine line numbers + input in HBox =====
+        HBox inputBox = new HBox(lineNumbersScroll, inputArea);
+        HBox.setHgrow(inputArea, Priority.ALWAYS);
+
+        // ===== Output Area =====
         Label outputLabel = new Label("Output");
-        outputArea = new TextArea();
         outputArea.setEditable(false);
         outputArea.setPromptText("Operation output will appear here...");
         outputArea.setPrefHeight(200);
@@ -52,55 +75,31 @@ public class Launcher extends Application {
         Button minifyBtn = new Button("Minify XML");
         Button compressBtn = new Button("Compress XML");
         Button decompressBtn = new Button("Decompress XML");
-        Button load = new Button("Browse XML");
+        Button loadBtn = new Button("Browse XML");
         Button saveBtn = new Button("Save Output");
 
         // ===== Button Actions =====
-        saveBtn.setOnAction(e -> {
-            OutputSaver.save(primaryStage, outputArea.getText());
-        });
-
-        load.setOnAction(e -> {
+        saveBtn.setOnAction(e -> OutputSaver.save(primaryStage, outputArea.getText()));
+        loadBtn.setOnAction(e -> {
             String xmlContent = Load_XML.load(primaryStage);
             if (xmlContent != null) {
                 inputArea.setText(xmlContent);
             }
         });
 
-        minifyBtn.setOnAction(e ->
-                MinifyHandler.handle(inputArea, outputArea)
-        );
-
-        compressBtn.setOnAction(e ->
-                CompressHandler.handle(inputArea, outputArea)
-        );
-
-        jsonBtn.setOnAction(e ->
-                ConvertHandler.handle(inputArea, outputArea)
-        );
-
-        formatBtn.setOnAction(e ->{
-            FormatHandler.handle(inputArea, outputArea);
-        });
-
-        checkBtn.setOnAction(e ->
-                CheckConsistencyHandler.handle(inputArea, outputArea)
-        );
-
-        decompressBtn.setOnAction(e ->
-                DecompressHandler.handle(inputArea, outputArea)
-        );
-
-
-
+        minifyBtn.setOnAction(e -> MinifyHandler.handle(inputArea, outputArea));
+        compressBtn.setOnAction(e -> CompressHandler.handle(inputArea, outputArea));
+        jsonBtn.setOnAction(e -> ConvertHandler.handle(inputArea, outputArea));
+        formatBtn.setOnAction(e -> FormatHandler.handle(inputArea, outputArea));
+        checkBtn.setOnAction(e -> CheckConsistencyHandler.handle(inputArea, outputArea));
+        decompressBtn.setOnAction(e -> DecompressHandler.handle(inputArea, outputArea));
 
         // ===== Layout =====
         VBox root = new VBox(10);
         root.setPadding(new Insets(15));
-
         root.getChildren().addAll(
-                inputLabel,
-                inputArea,
+                new Label("XML Input"),
+                inputBox,
                 outputLabel,
                 outputArea,
                 checkBtn,
@@ -109,15 +108,55 @@ public class Launcher extends Application {
                 minifyBtn,
                 compressBtn,
                 decompressBtn,
-                load,
+                loadBtn,
                 saveBtn
         );
 
         // ===== Scene & Stage =====
-        Scene scene = new Scene(root, 600, 700);
+        Scene scene = new Scene(root, 650, 700);
         primaryStage.setTitle("XML Processing Tool");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        // ===== Bind scrollbars AFTER show =====
+        bindScrollBars();
+
+        updateLineNumbers();
+    }
+
+    // ===== Helper to update line numbers =====
+    private void updateLineNumbers() {
+        lineNumbersBox.getChildren().clear();
+        String[] lines = inputArea.getText().split("\n", -1);
+
+        for (int i = 0; i < lines.length; i++) {
+            Label lineNumber = new Label(String.valueOf(i + 1));
+
+            lineNumber.setPrefHeight(18);
+            lineNumber.setMinHeight(18);
+            lineNumber.setMaxHeight(18);
+
+            lineNumber.setStyle(
+                    "-fx-font-family: monospace;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-text-fill: #555;" +
+                            "-fx-alignment: CENTER-RIGHT;"
+            );
+
+            lineNumbersBox.getChildren().add(lineNumber);
+        }
+    }
+
+    // ===== Scroll Sync (ONE scrollbar only) =====
+    private void bindScrollBars() {
+        for (var node : inputArea.lookupAll(".scroll-bar")) {
+            if (node instanceof ScrollBar sb &&
+                    sb.getOrientation() == Orientation.VERTICAL) {
+
+                lineNumbersScroll.vvalueProperty()
+                        .bindBidirectional(sb.valueProperty());
+            }
+        }
     }
 
     public static void main(String[] args) {
