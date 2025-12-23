@@ -15,11 +15,11 @@ public class CheckConsistencyHandler {
 
         Check_XML_Consistency checker = new Check_XML_Consistency();
 
-        // 🔧 FIX XML FIRST
+        // 🔧 STEP 1: FIX XML
         String fixedXML = checker.fixXML(xmlInput);
         inputArea.setText(fixedXML);
 
-        // ✅ THEN CHECK CONSISTENCY
+        // ✅ STEP 2: CHECK CONSISTENCY
         String result = checker.checkXMLConsistency(fixedXML);
         outputArea.setText(result);
     }
