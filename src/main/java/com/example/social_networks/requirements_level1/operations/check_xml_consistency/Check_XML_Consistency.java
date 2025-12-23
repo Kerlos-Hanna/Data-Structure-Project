@@ -12,9 +12,9 @@ import org.w3c.dom.Document;
 
 public class Check_XML_Consistency {
 
-    // =============================================================
+
     // FIX COMMON SIMPLE XML ERRORS
-    // =============================================================
+  
     public String fixXML(String xml) {
         if (xml == null || xml.isBlank()) return xml;
 
@@ -27,34 +27,48 @@ public class Check_XML_Consistency {
         return xml.trim();
     }
 
-    // =============================================================
     // CHECK XML CONSISTENCY (WELL-FORMEDNESS)
-    // =============================================================
+   
+  import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
+import java.io.StringReader;
+
+public class Check_XML_Consistency {
+
     public String checkXMLConsistency(String xmlText) {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
 
-            DocumentBuilder builder = factory.newDocumentBuilder();
-
-            builder.setErrorHandler(new ErrorHandler() {
-                public void warning(SAXParseException ex) throws SAXException { throw ex; }
-                public void error(SAXParseException ex) throws SAXException { throw ex; }
-                public void fatalError(SAXParseException ex) throws SAXException { throw ex; }
-            });
-
-            Document doc = builder.parse(
-                    new InputSource(new StringReader(xmlText))
-            );
+            SAXParser parser = factory.newSAXParser();
+            parser.parse(new InputSource(new StringReader(xmlText)), new DefaultHandler());
 
             return "XML is well-formed ✔\nNo errors detected.";
 
         } catch (SAXParseException ex) {
-            return " XML Parsing Error\nLine " + ex.getLineNumber() +
+            String msg = ex.getMessage();
+            // Look for pattern "The element type "xxx" must be terminated..."
+            if (msg.contains("must be terminated") || msg.contains("was not closed")) {
+                String tag = "unknown";
+                int start = msg.indexOf("\"");
+                int end = msg.indexOf("\"", start + 1);
+                if (start >= 0 && end > start) {
+                    tag = msg.substring(start + 1, end);
+                }
+                return "XML Parsing Error: The <" + tag + "> tag was closed without being opened\n" +
+                       "Line " + ex.getLineNumber() +
+                       ", Column " + ex.getColumnNumber();
+            }
+
+            return "XML Parsing Error\nLine " + ex.getLineNumber() +
                    ", Column " + ex.getColumnNumber() +
-                   "\nMessage: " + ex.getMessage();
+                   "\nMessage: " + msg;
+
         } catch (Exception ex) {
-            return " Error: " + ex.getMessage();
+            return "Error: " + ex.getMessage();
         }
     }
 }
+
