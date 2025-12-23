@@ -16,6 +16,9 @@ public class Minify_XML_Size {
         // Remove whitespace between tags
         xml = xml.replaceAll(">\\s+<", "><");
 
+        // Remove whitespace after opening tags and before closing tags
+        xml = xml.replaceAll(">\\s+([^<]*?)\\s+<", ">$1<");
+        
         // Trim leading and trailing whitespace
         xml = xml.trim();
 
