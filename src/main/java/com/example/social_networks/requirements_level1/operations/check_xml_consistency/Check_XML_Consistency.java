@@ -1,14 +1,14 @@
 package com.example.social_networks.requirements_level1.operations.check_xml_consistency;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.xml.sax.*;
 import org.xml.sax.InputSource;
-
 import java.io.StringReader;
-
 import org.w3c.dom.Document;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.helpers.DefaultHandler;
+
 
 public class Check_XML_Consistency {
 
@@ -28,12 +28,6 @@ public class Check_XML_Consistency {
     }
 
     // CHECK XML CONSISTENCY (WELL-FORMEDNESS)
-   
-  import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
-import java.io.StringReader;
 
 public class Check_XML_Consistency {
 
