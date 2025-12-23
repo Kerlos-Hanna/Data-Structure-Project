@@ -35,8 +35,9 @@ public class Launcher extends Application {
                         "-fx-background-insets: 0;" +
                         "-fx-background-color: white;" +
                         "-fx-border-color: lightgray;" +
-                        "-fx-padding: 6 10 0 6;" +        // ✅ ALIGN PADDING
+                        "-fx-padding: 6 10 0 6;" +
                         "-fx-font-family: monospace;" +
+                        "-fx-font-size: 12px;" +
                         "-fx-background-radius: 0;" +
                         "-fx-focus-color: transparent;" +
                         "-fx-faint-focus-color: transparent;"
@@ -44,10 +45,10 @@ public class Launcher extends Application {
         inputArea.setPrefHeight(300);
 
         // ===== Line Numbers Box =====
-        lineNumbersBox.setPadding(new Insets(6, 10, 0, 6)); // ✅ ALIGN WITH TEXTAREA
+        lineNumbersBox.setPadding(new Insets(6, 5, 0, 5));
         lineNumbersBox.setStyle("-fx-background-color: #f0f0f0;");
 
-        // ===== Line Numbers Scroll (NO SCROLLBAR) =====
+        // ===== Line Numbers Scroll =====
         lineNumbersScroll.setContent(lineNumbersBox);
         lineNumbersScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         lineNumbersScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -55,10 +56,9 @@ public class Launcher extends Application {
         lineNumbersScroll.setPrefWidth(45);
         lineNumbersScroll.setStyle("-fx-background: #f0f0f0;");
 
-        // ===== Update line numbers dynamically =====
         inputArea.textProperty().addListener((obs, oldText, newText) -> updateLineNumbers());
 
-        // ===== Combine line numbers + input in HBox =====
+        // ===== Combine Line Numbers + Input =====
         HBox inputBox = new HBox(lineNumbersScroll, inputArea);
         HBox.setHgrow(inputArea, Priority.ALWAYS);
 
@@ -80,6 +80,7 @@ public class Launcher extends Application {
 
         // ===== Button Actions =====
         saveBtn.setOnAction(e -> OutputSaver.save(primaryStage, outputArea.getText()));
+
         loadBtn.setOnAction(e -> {
             String xmlContent = Load_XML.load(primaryStage);
             if (xmlContent != null) {
@@ -94,7 +95,35 @@ public class Launcher extends Application {
         checkBtn.setOnAction(e -> CheckConsistencyHandler.handle(inputArea, outputArea));
         decompressBtn.setOnAction(e -> DecompressHandler.handle(inputArea, outputArea));
 
-        // ===== Layout =====
+        // ===== Buttons Grid =====
+        GridPane buttonGrid = new GridPane();
+        buttonGrid.setHgap(10);
+        buttonGrid.setVgap(10);
+        buttonGrid.setPadding(new Insets(10, 0, 10, 0));
+
+        ColumnConstraints col = new ColumnConstraints();
+        col.setHgrow(Priority.ALWAYS);
+        col.setFillWidth(true);
+        buttonGrid.getColumnConstraints().addAll(col, col, col, col);
+
+        for (Button b : new Button[]{
+                checkBtn, formatBtn, jsonBtn, minifyBtn,
+                compressBtn, decompressBtn, loadBtn, saveBtn
+        }) {
+            b.setMaxWidth(Double.MAX_VALUE);
+        }
+
+        buttonGrid.add(checkBtn, 0, 0);
+        buttonGrid.add(formatBtn, 1, 0);
+        buttonGrid.add(jsonBtn, 2, 0);
+        buttonGrid.add(minifyBtn, 3, 0);
+
+        buttonGrid.add(compressBtn, 0, 1);
+        buttonGrid.add(decompressBtn, 1, 1);
+        buttonGrid.add(loadBtn, 2, 1);
+        buttonGrid.add(saveBtn, 3, 1);
+
+        // ===== Root Layout =====
         VBox root = new VBox(10);
         root.setPadding(new Insets(15));
         root.getChildren().addAll(
@@ -102,52 +131,50 @@ public class Launcher extends Application {
                 inputBox,
                 outputLabel,
                 outputArea,
-                checkBtn,
-                formatBtn,
-                jsonBtn,
-                minifyBtn,
-                compressBtn,
-                decompressBtn,
-                loadBtn,
-                saveBtn
+                buttonGrid
         );
 
-        // ===== Scene & Stage =====
         Scene scene = new Scene(root, 650, 700);
         primaryStage.setTitle("XML Processing Tool");
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        // ===== Bind scrollbars AFTER show =====
         bindScrollBars();
-
         updateLineNumbers();
     }
 
-    // ===== Helper to update line numbers =====
+    // ===== Calculate Real Line Height =====
+    private double getLineHeight() {
+        return inputArea.getFont().getSize() * 1.25;
+    }
+
+    // ===== Update Line Numbers (ALIGNED) =====
     private void updateLineNumbers() {
         lineNumbersBox.getChildren().clear();
         String[] lines = inputArea.getText().split("\n", -1);
 
+        double lineHeight = getLineHeight();
+
         for (int i = 0; i < lines.length; i++) {
             Label lineNumber = new Label(String.valueOf(i + 1));
 
-            lineNumber.setPrefHeight(18);
-            lineNumber.setMinHeight(18);
-            lineNumber.setMaxHeight(18);
+            lineNumber.setMinHeight(lineHeight);
+            lineNumber.setPrefHeight(lineHeight);
+            lineNumber.setMaxHeight(lineHeight);
 
             lineNumber.setStyle(
                     "-fx-font-family: monospace;" +
                             "-fx-font-size: 12px;" +
                             "-fx-text-fill: #555;" +
-                            "-fx-alignment: CENTER-RIGHT;"
+                            "-fx-alignment: CENTER-RIGHT;" +
+                            "-fx-padding: 0 5 0 0;"
             );
 
             lineNumbersBox.getChildren().add(lineNumber);
         }
     }
 
-    // ===== Scroll Sync (ONE scrollbar only) =====
+    // ===== Scroll Sync =====
     private void bindScrollBars() {
         for (var node : inputArea.lookupAll(".scroll-bar")) {
             if (node instanceof ScrollBar sb &&
