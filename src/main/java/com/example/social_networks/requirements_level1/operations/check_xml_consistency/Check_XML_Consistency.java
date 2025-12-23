@@ -29,7 +29,6 @@ public class Check_XML_Consistency {
 
     // CHECK XML CONSISTENCY (WELL-FORMEDNESS)
 
-public class Check_XML_Consistency {
 
     public String checkXMLConsistency(String xmlText) {
         try {
