@@ -86,3 +86,4 @@ public class MostActiveUser {
         System.out.println("Most followed (in-degree): " + mostFollowed(g));
     }
 }
+
