@@ -28,7 +28,11 @@ public class Launcher extends Application {
         // ===== Output Area =====
         Label outputLabel = new Label("Output");
         outputArea.setEditable(false);
+
+        // 🔒 FIX OUTPUT AREA SIZE (ONLY CHANGE)
         outputArea.setPrefHeight(200);
+        outputArea.setMinHeight(200);
+        outputArea.setMaxHeight(200);
 
         // ===== Buttons (UNCHANGED) =====
         Button checkBtn = new Button("Check XML Consistency");
