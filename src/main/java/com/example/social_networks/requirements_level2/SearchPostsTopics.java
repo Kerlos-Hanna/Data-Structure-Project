@@ -1,4 +1,4 @@
-package com.mycompany.dsa;
+package com.example.social_networks.requirements_level2;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -9,7 +9,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dsa {
+public class SearchPostsTopics {
 
     /**
      * Returns a list of posts (as text) that contain the given topic.
@@ -90,7 +90,7 @@ public class Dsa {
               "<post><body>Java tips</body><topics><topic>Tech</topic></topics></post>" +
             "</network>";
 
-        Dsa pst = new Dsa();
+        SearchPostsTopics pst = new SearchPostsTopics();
         System.out.println(pst.searchTopics(xml, "sports")); // -> [Hello]
     }
 }
