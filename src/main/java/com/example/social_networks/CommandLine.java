@@ -282,8 +282,8 @@ private void handleMostActive(String inputFile) throws IOException {
         int totalPosts = mostActive.posts.size();
       
         System.out.println("Most Active:");
-        System.out.printf("%d. %s (Posts: %d, Likes: %d, Comments: %d)%n",
-                1, mostActive.name, totalPosts, totalLikes, totalComments);
+        System.out.printf("%d. %s (Posts: %d)%n",
+                1, mostActive.name, totalPosts);
     }
 }
 
