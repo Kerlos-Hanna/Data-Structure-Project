@@ -254,6 +254,30 @@ private void handleVerify(String input, String output, boolean fix) {
 
     System.out.println("Graph saved to: " + outputFile);
 }
+
+   private void handleMostInfluencer(String inputFile) throws IOException {
+    List<User> users = loadUsersFromXML(inputFile);
+    if (users.isEmpty()) {
+        System.out.println("No users found.");
+        return;
+    }
+
+    User influencer = null;
+    int maxFollowers = -1;
+
+    for (User u : users) {
+        int count = u.followers.size();
+        if (count > maxFollowers || (count == maxFollowers && (influencer == null || u.id < influencer.id))) {
+            maxFollowers = count;
+            influencer = u;
+        }
+    }
+
+    if (influencer != null) {
+        System.out.println("Most Influencer:");
+        System.out.printf("%d. %s (Followers: %d)%n", 1, influencer.name, maxFollowers);
+    }
+}
 private void handleMostActive(String inputFile) throws IOException {
     List<User> users = loadUsersFromXML(inputFile);
     if (users.isEmpty()) {
@@ -290,29 +314,7 @@ private void handleMostActive(String inputFile) throws IOException {
     }
 }
 
-private void handleSearchWord(String inputFile, String word) throws IOException {  
-    String xml = Files.readString(Path.of(inputFile));
-    Vector<Tag> tags = Parsing_XML.parse(xml);
-    List<User> users = DrawGraph.buildUsers(tags);
 
-    boolean found = false;
-    System.out.println("Found \"" + word + "\" in:");
-
-    for (User u : users) {
-        // Check user name
-        if (u.name.equals(word)) { // exact match
-            System.out.println("User ID: " + u.id + ", Name: " + u.name);
-            found = true;
-        }
-
-        // Check posts
-        for (Post p : u.posts) {
-            if (p.body != null && p.body.contains(word)) {
-                System.out.println("Post Body: \"" + p.body + "\"");
-                found = true;
-            }
-        }
-    }
 
     if (!found) System.out.println("None");
 }
@@ -371,13 +373,29 @@ private void handleSuggest(String inputFile, String id) throws IOException {
     }
 }
 
-private void handleSearchWord(String inputFile, String word) throws IOException {
+private void handleSearchWord(String inputFile, String word) throws IOException {  
     String xml = Files.readString(Path.of(inputFile));
-    List<String> posts = SearchPostsWords.searchPostsByWord(xml, word);
-    System.out.println("Search Results (Word: " + word + "):");
-    if (posts.isEmpty()) System.out.println("None");
-    else for (String post : posts) System.out.println("- " + post);
-}
+    Vector<Tag> tags = Parsing_XML.parse(xml);
+    List<User> users = DrawGraph.buildUsers(tags);
+
+    boolean found = false;
+    System.out.println("Found \"" + word + "\" in:");
+
+    for (User u : users) {
+        // Check user name
+        if (u.name.equals(word)) { // exact match
+            System.out.println("User ID: " + u.id + ", Name: " + u.name);
+            found = true;
+        }
+
+        // Check posts
+        for (Post p : u.posts) {
+            if (p.body != null && p.body.contains(word)) {
+                System.out.println("Post Body: \"" + p.body + "\"");
+                found = true;
+            }
+        }
+    }
 
 private void handleSearchTopic(String inputFile, String topic) throws IOException {
     List<User> users = loadUsersFromXML(inputFile);
