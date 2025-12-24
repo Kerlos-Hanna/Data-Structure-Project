@@ -1,54 +1,78 @@
 package com.example.social_networks.requirements_level1.operations.format_xml;
 
-import org.w3c.dom.Document;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.util.Stack;
 
 public class Format_XML {
-   public static String formatXML(String xmlText) {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
 
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setErrorHandler(new ErrorHandler() {
-                public void warning(SAXParseException ex) throws SAXException { throw ex; }
-                public void error(SAXParseException ex) throws SAXException { throw ex; }
-                public void fatalError(SAXParseException ex) throws SAXException { throw ex; }
-            });
+    private static final int INDENT_SIZE = 2;
 
-            Document doc = builder.parse(new InputSource(new StringReader(xmlText)));
+    public static String formatXML(String xml) {
+        // to use this you
 
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
+        StringBuilder result = new StringBuilder();
+        Stack<String> stack = new Stack<>();
 
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        int i = 0;
+        int depth = 0;
 
-            StringWriter writer = new StringWriter();
-            transformer.transform(new DOMSource(doc), new StreamResult(writer));
-            return writer.toString();
+        while (i < xml.length()) {
 
-        } catch (SAXParseException ex) {
-            return "XML Parsing Error\nLine " + ex.getLineNumber() +
-                    ", Column " + ex.getColumnNumber() +
-                    "\nMessage: " + ex.getMessage();
-        } catch (Exception ex) {
-            return "Error: " + ex.getMessage();
+            // Skip whitespace outside text
+            if (Character.isWhitespace(xml.charAt(i))) {
+                i++;
+                continue;
+            }
+
+            // Tag detected
+            if (xml.charAt(i) == '<') {
+                int end = xml.indexOf('>', i);
+                if (end == -1) {
+                    return "Error: Invalid XML (missing >)";
+                }
+
+                String tag = xml.substring(i + 1, end).trim();
+
+                // Closing tag
+                if (tag.startsWith("/")) {
+                    depth--;
+                    indent(result, depth);
+                    result.append("<").append(tag).append(">\n");
+                    if (!stack.isEmpty()) stack.pop();
+                }
+                // Opening tag
+                else {
+                    indent(result, depth);
+                    result.append("<").append(tag).append(">\n");
+                    stack.push(tag);
+                    depth++;
+                }
+
+                i = end + 1;
+            }
+            // Text content
+            else {
+                int end = xml.indexOf('<', i);
+                if (end == -1) end = xml.length();
+
+                String text = xml.substring(i, end).trim();
+                if (!text.isEmpty()) {
+                    indent(result, depth);
+                    result.append(text).append("\n");
+                }
+
+                i = end;
+            }
         }
-}
+
+        return result.toString();
+    }
+
+    // Helper method for indentation
+    private static void indent(StringBuilder sb, int depth) {
+        for (int i = 0; i < depth * INDENT_SIZE; i++) {
+            sb.append(' ');
+        }
+    }
+
+
 }
