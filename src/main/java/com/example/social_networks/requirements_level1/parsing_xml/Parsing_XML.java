@@ -5,7 +5,7 @@ import java.util.Vector;
 public class Parsing_XML {
     static Stack<Tag> stack = new Stack<>();
 
-    static Vector<Tag> parse(String xml) {
+    public static Vector<Tag> parse(String xml) {
         stack.clear();
         Vector<Tag> tagVec = new Vector<>();
 
@@ -111,16 +111,3 @@ public class Parsing_XML {
     }
 }
 
-class Tag {
-
-    String name;
-    boolean isOpening;
-    boolean isClosing;
-    String innerText;
-
-    Tag() {
-        this.isOpening = true;
-        this.isClosing = false;
-        innerText = "";
-    }
-}
