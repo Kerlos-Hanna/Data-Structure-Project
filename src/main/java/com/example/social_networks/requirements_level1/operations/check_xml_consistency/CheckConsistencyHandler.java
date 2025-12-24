@@ -16,20 +16,17 @@ public class CheckConsistencyHandler {
 
         Check_XML_Consistency checker = new Check_XML_Consistency();
 
-        // 🔧 STEP 1: FIX XML
-        String fixedXML = checker.autoFix(xmlInput);
-        inputArea.setText(fixedXML);
-
-        // ✅ STEP 2: CHECK CONSISTENCY USING validate()
+        // ✅ CHECK ONLY (NO AUTO FIX)
         List<Check_XML_Consistency.checkXMLConsistency> errors =
-                checker.validate(fixedXML);
+                checker.validate(xmlInput);
 
         if (errors.isEmpty()) {
             outputArea.setText("XML is consistent ✔");
         } else {
             StringBuilder result = new StringBuilder();
+            result.append("❌ XML Consistency Errors:\n\n");
             for (Check_XML_Consistency.checkXMLConsistency err : errors) {
-                result.append(err.toString()).append("\n");
+                result.append(err).append("\n");
             }
             outputArea.setText(result.toString());
         }
