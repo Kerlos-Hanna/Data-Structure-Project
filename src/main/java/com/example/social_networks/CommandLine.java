@@ -280,9 +280,7 @@ private void handleMostActive(String inputFile) throws IOException {
 
     if (mostActive != null) {
         int totalPosts = mostActive.posts.size();
-        int totalLikes = mostActive.posts.stream().mapToInt(p -> p.likes).sum();
-        int totalComments = mostActive.posts.stream().mapToInt(p -> p.comments).sum();
-
+      
         System.out.println("Most Active:");
         System.out.printf("%d. %s (Posts: %d, Likes: %d, Comments: %d)%n",
                 1, mostActive.name, totalPosts, totalLikes, totalComments);
