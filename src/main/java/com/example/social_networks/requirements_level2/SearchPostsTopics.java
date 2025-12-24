@@ -1,85 +1,48 @@
 package com.example.social_networks.requirements_level2;
-
-import org.w3c.dom.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.xml.sax.InputSource;
-
-import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
-public class SearchPostsTopics {
+import com.mycompany.dsa.Parsing_XML ;
+import com.mycompany.dsa.Tag;
 
-    /**
-     * Returns a list of posts (as text) that contain the given topic.
-     * - It looks for <post> elements.
-     * - Inside each post, it searches for <topic> elements (any depth).
-     * - If a matching topic is found, it returns the post content (body/text/content if exists),
-     *   otherwise it returns the whole post element serialized.
-     */
-    public List<String> searchTopics(String xml, String topic) {
+public class SearchPostsTopics  {
+
+    // Return all topics (unique, in same order)
+    public List<String> listTopics(String xml) {
         List<String> result = new ArrayList<>();
-        if (xml == null || topic == null) return result;
+        if (xml == null || xml.isBlank()) return result;
 
-        String wanted = topic.trim();
-        if (wanted.isEmpty()) return result;
+        Vector<Tag> tags = Parsing_XML .parse(xml);
+        if (tags == null || tags.isEmpty()) return result;
 
-        try {
-            Document doc = parseXml(xml);
-            if (doc == null) return result;
+        Set<String> unique = new LinkedHashSet<>();
 
-            NodeList posts = doc.getElementsByTagName("post");
-            for (int i = 0; i < posts.getLength(); i++) {
-                Element postEl = (Element) posts.item(i);
+        for (Tag t : tags) {
+            if (t == null || t.name == null) continue;
 
-                if (postHasTopic(postEl, wanted)) {
-                    // Prefer common content tags; fallback to whole <post> text.
-                    String content = firstTextByTag(postEl, "body");
-                    if (content == null) content = firstTextByTag(postEl, "text");
-                    if (content == null) content = firstTextByTag(postEl, "content");
-                    if (content == null) content = postEl.getTextContent();
-
-                    result.add(content == null ? "" : content.trim());
-                }
+            // Your parser stores innerText in the OPENING tag object
+            if (t.isOpening && t.name.trim().equalsIgnoreCase("topic")) {
+                String topicText = (t.innerText == null) ? "" : t.innerText.trim();
+                if (!topicText.isEmpty()) unique.add(topicText);
             }
-        } catch (Exception e) {
-            // If XML is not well-formed, return empty list (or you can rethrow).
-            return result;
         }
 
+        result.addAll(unique);
         return result;
     }
 
-    // ---------------- Helpers ----------------
+    // Quick test
+    public static void main(String[] args) {
+        String xml =
+            "<network>" +
+              "<post><body>Hello</body><topics><topic>Sports</topic><topic>News</topic></topics></post>" +
+              "<post><body>Java tips</body><topics><topic>Tech</topic><topic>News</topic></topics></post>" +
+            "</network>";
 
-    private boolean postHasTopic(Element postEl, String wantedTopic) {
-        NodeList topics = postEl.getElementsByTagName("topic");
-        for (int j = 0; j < topics.getLength(); j++) {
-            Node t = topics.item(j);
-            String text = t.getTextContent();
-            if (text != null && text.trim().equalsIgnoreCase(wantedTopic)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String firstTextByTag(Element parent, String tagName) {
-        NodeList nodes = parent.getElementsByTagName(tagName);
-        if (nodes.getLength() == 0) return null;
-        String txt = nodes.item(0).getTextContent();
-        return (txt == null) ? null : txt.trim();
-    }
-
-    private Document parseXml(String xml) throws Exception {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(false);
-        dbf.setIgnoringComments(true);
-        dbf.setCoalescing(true);
-
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        return db.parse(new InputSource(new StringReader(xml)));
+        SearchPostsTopics  lt = new SearchPostsTopics ();
+        System.out.println(lt.listTopics(xml)); // [Sports, News, Tech]
     }
 }
-
