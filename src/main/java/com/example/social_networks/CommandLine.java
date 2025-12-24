@@ -22,8 +22,7 @@ import java.util.Vector;
 
 
 public class CommandLine {
-   
-    public static void main(String[] args) {
+   public static void main(String[] args) {
         new CLI().run(args);
     }
 
@@ -254,30 +253,6 @@ private void handleVerify(String input, String output, boolean fix) {
 
     System.out.println("Graph saved to: " + outputFile);
 }
-
-   private void handleMostInfluencer(String inputFile) throws IOException {
-    List<User> users = loadUsersFromXML(inputFile);
-    if (users.isEmpty()) {
-        System.out.println("No users found.");
-        return;
-    }
-
-    User influencer = null;
-    int maxFollowers = -1;
-
-    for (User u : users) {
-        int count = u.followers.size();
-        if (count > maxFollowers || (count == maxFollowers && (influencer == null || u.id < influencer.id))) {
-            maxFollowers = count;
-            influencer = u;
-        }
-    }
-
-    if (influencer != null) {
-        System.out.println("Most Influencer:");
-        System.out.printf("%d. %s (Followers: %d)%n", 1, influencer.name, maxFollowers);
-    }
-}
 private void handleMostActive(String inputFile) throws IOException {
     List<User> users = loadUsersFromXML(inputFile);
     if (users.isEmpty()) {
@@ -314,9 +289,28 @@ private void handleMostActive(String inputFile) throws IOException {
     }
 }
 
+private void handleMostInfluencer(String inputFile) throws IOException {
+    List<User> users = loadUsersFromXML(inputFile);
+    if (users.isEmpty()) {
+        System.out.println("No users found.");
+        return;
+    }
 
+    User influencer = null;
+    int maxFollowers = -1;
 
-    if (!found) System.out.println("None");
+    for (User u : users) {
+        int count = u.followers.size();
+        if (count > maxFollowers || (count == maxFollowers && (influencer == null || u.id < influencer.id))) {
+            maxFollowers = count;
+            influencer = u;
+        }
+    }
+
+    if (influencer != null) {
+        System.out.println("Most Influencer:");
+        System.out.printf("%d. %s (Followers: %d)%n", 1, influencer.name, maxFollowers);
+    }
 }
 
 private void handleMutual(String inputFile, String ids) throws IOException {
@@ -372,8 +366,8 @@ private void handleSuggest(String inputFile, String id) throws IOException {
         if (u != null) System.out.printf("- %s (ID: %d)%n", u.name, u.id);
     }
 }
-
-private void handleSearchWord(String inputFile, String word) throws IOException {  
+ 
+private void handleSearchWord(String inputFile, String word) throws IOException {   // 
     String xml = Files.readString(Path.of(inputFile));
     Vector<Tag> tags = Parsing_XML.parse(xml);
     List<User> users = DrawGraph.buildUsers(tags);
@@ -396,6 +390,11 @@ private void handleSearchWord(String inputFile, String word) throws IOException 
             }
         }
     }
+
+    if (!found) System.out.println("None");
+}
+
+
 
 private void handleSearchTopic(String inputFile, String topic) throws IOException {
     List<User> users = loadUsersFromXML(inputFile);
