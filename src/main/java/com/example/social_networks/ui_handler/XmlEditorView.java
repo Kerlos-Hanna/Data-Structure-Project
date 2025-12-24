@@ -1,5 +1,6 @@
 package com.example.social_networks.ui_handler;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -14,8 +15,10 @@ public class XmlEditorView {
     public XmlEditorView() {
         setupInputArea();
         setupLineNumbers();
-        bindScroll();
         bindLineUpdates();
+
+        // ✅ FIX: delay scroll binding until skin exists
+        Platform.runLater(this::bindScroll);
     }
 
     public HBox getView() {
