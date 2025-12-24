@@ -4,8 +4,6 @@ package com.example.social_networks.requirements_level1.operations.decompress_xm
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package com.mycompany.saradsa;
-
 
 import java.io.*;
 import java.util.zip.*;
@@ -76,4 +74,4 @@ public void decompressZIP(String inputPath, String outputPath) throws IOExceptio
 
 
 }
-}
+
