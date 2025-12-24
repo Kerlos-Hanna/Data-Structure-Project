@@ -6,7 +6,9 @@ import com.example.social_networks.requirements_level1.operations.conver_xml_to_
 import com.example.social_networks.requirements_level1.operations.decompress_xml.Decompression_XML;
 import com.example.social_networks.requirements_level1.operations.format_xml.Format_XML;
 import com.example.social_networks.requirements_level1.operations.minify_xml.Minify_XML_Size;
-
+import com.example.social_networks.requirements_level1.parsing_xml.Parsing_XML;
+import com.example.social_networks.requirements_level1.parsing_xml.Tag;
+import com.example.social_networks.requirements_level2.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
