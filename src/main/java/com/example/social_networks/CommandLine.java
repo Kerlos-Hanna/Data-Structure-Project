@@ -11,11 +11,20 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 
 public class CommandLine {
+   
     public static void main(String[] args) {
-        new CommandLine().run(args);
+        new CLI().run(args);
     }
 
     public void run(String[] args) {
@@ -27,22 +36,25 @@ public class CommandLine {
         String command = args[0].toLowerCase();
         String input = null;
         String output = null;
+        String id = null;
+        String ids = null;
+        String word = null;
+        String topic = null;
         boolean fix = false;
 
+        
+
         // Parse flags
-        for (int i = 1; i < args.length; i++) {
+         for (int i = 1; i < args.length; i++) {
             switch (args[i].toLowerCase()) {
-                case "-i":
-                    if (i + 1 < args.length) input = args[++i];
-                    break;
-                case "-o":
-                    if (i + 1 < args.length) output = args[++i];
-                    break;
-                case "-f":
-                    fix = true;
-                    break;
-                default:
-                    System.out.println("Unknown option: " + args[i]);
+                case "-i": if (i + 1 < args.length) input = args[++i]; break;
+                case "-o": if (i + 1 < args.length) output = args[++i]; break;
+                case "-id": if (i + 1 < args.length) id = args[++i]; break;
+                case "-ids": if (i + 1 < args.length) ids = args[++i]; break;
+                case "-w": if (i + 1 < args.length) word = args[++i]; break;
+                case "-t": if (i + 1 < args.length) topic = args[++i]; break;
+                case "-f": fix = true; break;
+                default: System.out.println("Unknown option: " + args[i]);
             }
         }
 
@@ -53,27 +65,23 @@ public class CommandLine {
 
         try {
             switch (command) {
-                case "verify":
-                    handleVerify(input, output, fix);
+                case "verify": handleVerify(input, output, fix); break;
+                case "format": handleFormat(input, output); break;
+                case "json": handleConvert(input, output); break;
+                case "mini": handleMinify(input, output); break;
+                case "compress": handleCompress(input, output); break;
+                case "decompress": handleDecompress(input, output); break;             
+                case "draw": handleDraw(input, output); break;
+                case "most_active": handleMostActive(input); break;
+                case "most_influencer": handleMostInfluencer(input); break;
+                case "mutual": handleMutual(input, ids); break;
+                case "suggest": handleSuggest(input, id); break;
+                case "search":
+                    if (word != null) handleSearchWord(input, word);
+                    else if (topic != null) handleSearchTopic(input, topic);
+                    else System.out.println("Please provide -w <word> or -t <topic> for search.");
                     break;
-                case "format":
-                    handleFormat(input, output);
-                    break;
-                case "json":
-                    handleConvert(input, output);
-                    break;
-                case "mini":
-                    handleMinify(input, output);
-                    break;
-                case "compress":
-                    handleCompress(input, output);
-                    break;
-                case "decompress":
-                    handleDecompress(input, output);
-                    break;
-                default:
-                    System.out.println("Unknown command: " + command);
-                    printHelp();
+                default: System.out.println("Unknown command: " + command); printHelp();
             }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
@@ -81,22 +89,38 @@ public class CommandLine {
         }
     }
 
-    // ------------------- Handlers -------------------
+    // ------------------- Handlers level 1 -------------------
 
 private void handleVerify(String input, String output, boolean fix) {
     try {
-        // Read the input XML file
+        // Read XML file
         String xml = Files.readString(Path.of(input));
+
         Check_XML_Consistency checker = new Check_XML_Consistency();
 
-        // Validate XML and print the result
-        //String validationResult = checker.checkXMLConsistency(xml);
-        //System.out.println(validationResult);
+        // 1️⃣ Validate XML
+        List<Check_XML_Consistency.checkXMLConsistency> errors =
+                checker.validate(xml);
 
-        // Fix XML if requested
-        if (fix && output != null) {
-            String fixedXML = checker.autoFix(xml);  // <-- Use fixXML instead of checkXMLConsistency
+        if (errors.isEmpty()) {
+            System.out.println("XML is well-formed.");
+        } else {
+            System.out.println("XML Errors Found:");
+            for (Check_XML_Consistency.checkXMLConsistency err : errors) {
+                System.out.println(err);
+            }
+        }
+
+        // 2️⃣ Fix XML if requested
+        if (fix) {
+            if (output == null) {
+                System.out.println("Output file required when using --fix");
+                return;
+            }
+
+            String fixedXML = checker.autoFix(xml);
             Files.writeString(Path.of(output), fixedXML);
+
             System.out.println("Fixed XML saved to: " + output);
         }
 
@@ -106,6 +130,7 @@ private void handleVerify(String input, String output, boolean fix) {
         System.err.println("Error verifying XML: " + e.getMessage());
     }
 }
+
 
 
     private void handleFormat(String input, String output) {
@@ -212,16 +237,192 @@ private void handleVerify(String input, String output, boolean fix) {
             System.err.println("Error decompressing XML: " + e.getMessage());
         }
     }
+    
+    // ------------------- Handlers level 2 -------------------
+    
+
+  private void handleDraw(String inputFile, String outputFile) throws IOException {
+   if (outputFile == null) {
+        System.out.println("Output required (-o)");
+        return;
+    }
+    String xml = Files.readString(Path.of(inputFile));
+    Vector<Tag> tags = Parsing_XML.parse(xml);
+    Vector<User> users = DrawGraph.buildUsers(tags);
+    Graph g = DrawGraph.buildGraph(users);
+    DrawGraph.visualizeGraph(users, g, outputFile);
+
+    System.out.println("Graph saved to: " + outputFile);
+}
+private void handleMostActive(String inputFile) throws IOException {
+    List<User> users = loadUsersFromXML(inputFile);
+    if (users.isEmpty()) {
+        System.out.println("No users found.");
+        return;
+    }
+
+    Map<Integer, Integer> followingCount = new HashMap<>();
+    for (User u : users) {
+        for (int followerId : u.followers) {
+            followingCount.put(followerId, followingCount.getOrDefault(followerId, 0) + 1);
+        }
+    }
+
+    User mostActive = null;
+    int maxFollowing = -1;
+
+    for (User u : users) {
+        int count = followingCount.getOrDefault(u.id, 0);
+        if (count > maxFollowing || (count == maxFollowing && (mostActive != null && u.id < mostActive.id))) {
+            maxFollowing = count;
+            mostActive = u;
+        }
+    }
+
+    if (mostActive != null) {
+        int totalPosts = mostActive.posts.size();
+        int totalLikes = mostActive.posts.stream().mapToInt(p -> p.likes).sum();
+        int totalComments = mostActive.posts.stream().mapToInt(p -> p.comments).sum();
+
+        System.out.println("Most Active:");
+        System.out.printf("%d. %s (Posts: %d, Likes: %d, Comments: %d)%n",
+                1, mostActive.name, totalPosts, totalLikes, totalComments);
+    }
+}
+
+private void handleMostInfluencer(String inputFile) throws IOException {
+    List<User> users = loadUsersFromXML(inputFile);
+    if (users.isEmpty()) {
+        System.out.println("No users found.");
+        return;
+    }
+
+    User influencer = null;
+    int maxFollowers = -1;
+
+    for (User u : users) {
+        int count = u.followers.size();
+        if (count > maxFollowers || (count == maxFollowers && (influencer == null || u.id < influencer.id))) {
+            maxFollowers = count;
+            influencer = u;
+        }
+    }
+
+    if (influencer != null) {
+        System.out.println("Most Influencer:");
+        System.out.printf("%d. %s (Followers: %d)%n", 1, influencer.name, maxFollowers);
+    }
+}
+
+private void handleMutual(String inputFile, String ids) throws IOException {
+    if (ids == null || ids.isBlank()) {
+        System.out.println("Please provide -ids");
+        return;
+    }
+
+    int[] userIds = Arrays.stream(ids.split(",")).mapToInt(s -> Integer.parseInt(s.trim())).toArray();
+    List<User> users = loadUsersFromXML(inputFile);
+
+    Map<Integer, Set<Integer>> follows = new HashMap<>();
+    for (User u : users) follows.putIfAbsent(u.id, new HashSet<>());
+    for (User u : users) {
+        for (int f : u.followers) {
+            follows.putIfAbsent(f, new HashSet<>());
+            follows.get(f).add(u.id);
+        }
+    }
+
+    Set<Integer> mutual = new HashSet<>(follows.getOrDefault(userIds[0], new HashSet<>()));
+    for (int i = 1; i < userIds.length; i++) mutual.retainAll(follows.getOrDefault(userIds[i], new HashSet<>()));
+
+    System.out.println("Mutual Users [" + ids + "]:");
+    if (mutual.isEmpty()) System.out.println("None");
+    else {
+        for (int uid : mutual) {
+            User u = users.stream().filter(x -> x.id == uid).findFirst().orElse(null);
+            if (u != null) System.out.printf("- %s (ID: %d)%n", u.name, u.id);
+        }
+    }
+}
+
+private void handleSuggest(String inputFile, String id) throws IOException {
+    if (id == null || id.isBlank()) {
+        System.out.println("Please provide -id");
+        return;
+    }
+
+    int userId = Integer.parseInt(id.trim());
+    List<User> users = loadUsersFromXML(inputFile);
+
+    SuggestedFriends.Graph g = new SuggestedFriends.Graph();
+    for (User u : users) for (int f : u.followers) g.addEdge(u.id, f);
+
+    SuggestedFriends.Suggestions suggester = new SuggestedFriends.Suggestions();
+    List<Integer> result = suggester.suggest(g, userId);
+
+    System.out.println("Friend Suggestions for ID " + userId + ":");
+    if (result.isEmpty()) System.out.println("None");
+    else for (int uid : result) {
+        User u = users.stream().filter(x -> x.id == uid).findFirst().orElse(null);
+        if (u != null) System.out.printf("- %s (ID: %d)%n", u.name, u.id);
+    }
+}
+
+private void handleSearchWord(String inputFile, String word) throws IOException {
+    String xml = Files.readString(Path.of(inputFile));
+    List<String> posts = SearchPostsWords.searchPostsByWord(xml, word);
+    System.out.println("Search Results (Word: " + word + "):");
+    if (posts.isEmpty()) System.out.println("None");
+    else for (String post : posts) System.out.println("- " + post);
+}
+
+private void handleSearchTopic(String inputFile, String topic) throws IOException {
+    List<User> users = loadUsersFromXML(inputFile);
+    if (users.isEmpty()) {
+        System.out.println("No users found.");
+        return;
+    }
+
+    List<String> matchingPosts = new ArrayList<>();
+    for (User u : users) {
+        for (Post p : u.posts) {
+            if (p.topics != null && p.topics.contains(topic)) {
+                matchingPosts.add(p.body);
+            }
+        }
+    }
+
+    System.out.println("Posts containing topic \"" + topic + "\":");
+    if (matchingPosts.isEmpty()) System.out.println("None");
+    else for (String post : matchingPosts) System.out.println("- " + post);
+}
+
+        // ------------------- Helper -------------------
+
+
+ private List<User> loadUsersFromXML(String inputFile) throws IOException {
+        String xml = Files.readString(Path.of(inputFile));
+        Vector<Tag> tags = Parsing_XML.parse(xml);
+        return DrawGraph.buildUsers(tags);
+    }
+
 
     // ------------------- Help -------------------
 
     private void printHelp() {
-        System.out.println("Available commands:");
-        System.out.println("  verify -i <input.xml> [-f] [-o <output.xml>]   : Check XML consistency, optionally fix errors.");
-        System.out.println("  format -i <input.xml> [-o <output.xml>]       : Prettify XML and save.");
-        System.out.println("  json -i <input.xml> -o <output.json>          : Convert XML to JSON.");
-        System.out.println("  mini -i <input.xml> [-o <output.xml>]         : Minify XML.");
-        System.out.println("  compress -i <input.xml> -o <output.comp>      : Compress XML.");
-        System.out.println("  decompress -i <input.gz|.zip> -o <output.xml>: Decompress XML.");
-    }
+    System.out.println("Available commands:");
+    System.out.println("  verify -i <input.xml> [-f] [-o <output.xml>]   : Check XML consistency, optionally fix errors.");
+    System.out.println("  format -i <input.xml> [-o <output.xml>]        : Prettify XML and save.");
+    System.out.println("  json -i <input.xml> -o <output.json>           : Convert XML to JSON.");
+    System.out.println("  mini -i <input.xml> [-o <output.xml>]          : Minify XML.");
+    System.out.println("  compress -i <input.xml> -o <output.comp>       : Compress XML.");
+    System.out.println("  decompress -i <input.gz|.zip> -o <output.xml>  : Decompress XML.");
+    System.out.println("  draw -i <input.xml> -o <output.jpg>            : Draw XML data as a graph.");
+    System.out.println("  most_active -i <input.xml>                     : Display the most active user.");
+    System.out.println("  most_influencer -i <input.xml>                 : Display the most influencer user.");
+    System.out.println("  mutual -i <input.xml> -ids 1,2,3               : List mutual users between given IDs.");
+    System.out.println("  suggest -i <input.xml> -id 1                   : Suggest users for the given user ID.");
+    System.out.println("  search -w <word> -i <input.xml>                : Search posts containing a specific word.");
+    System.out.println("  search -t <topic> -i <input.xml>               : Search posts related to a specific topic.");
+}
 }
