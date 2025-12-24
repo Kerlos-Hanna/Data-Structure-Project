@@ -81,17 +81,5 @@ public class SearchPostsTopics {
         DocumentBuilder db = dbf.newDocumentBuilder();
         return db.parse(new InputSource(new StringReader(xml)));
     }
-
-    // Quick test
-    public static void main(String[] args) {
-        String xml =
-            "<network>" +
-              "<post><body>Hello</body><topics><topic>Sports</topic><topic>News</topic></topics></post>" +
-              "<post><body>Java tips</body><topics><topic>Tech</topic></topics></post>" +
-            "</network>";
-
-        SearchPostsTopics pst = new SearchPostsTopics();
-        System.out.println(pst.searchTopics(xml, "sports")); // -> [Hello]
-    }
 }
 
