@@ -290,28 +290,31 @@ private void handleMostActive(String inputFile) throws IOException {
     }
 }
 
-private void handleMostInfluencer(String inputFile) throws IOException {
-    List<User> users = loadUsersFromXML(inputFile);
-    if (users.isEmpty()) {
-        System.out.println("No users found.");
-        return;
-    }
+private void handleSearchWord(String inputFile, String word) throws IOException {  
+    String xml = Files.readString(Path.of(inputFile));
+    Vector<Tag> tags = Parsing_XML.parse(xml);
+    List<User> users = DrawGraph.buildUsers(tags);
 
-    User influencer = null;
-    int maxFollowers = -1;
+    boolean found = false;
+    System.out.println("Found \"" + word + "\" in:");
 
     for (User u : users) {
-        int count = u.followers.size();
-        if (count > maxFollowers || (count == maxFollowers && (influencer == null || u.id < influencer.id))) {
-            maxFollowers = count;
-            influencer = u;
+        // Check user name
+        if (u.name.equals(word)) { // exact match
+            System.out.println("User ID: " + u.id + ", Name: " + u.name);
+            found = true;
+        }
+
+        // Check posts
+        for (Post p : u.posts) {
+            if (p.body != null && p.body.contains(word)) {
+                System.out.println("Post Body: \"" + p.body + "\"");
+                found = true;
+            }
         }
     }
 
-    if (influencer != null) {
-        System.out.println("Most Influencer:");
-        System.out.printf("%d. %s (Followers: %d)%n", 1, influencer.name, maxFollowers);
-    }
+    if (!found) System.out.println("None");
 }
 
 private void handleMutual(String inputFile, String ids) throws IOException {
