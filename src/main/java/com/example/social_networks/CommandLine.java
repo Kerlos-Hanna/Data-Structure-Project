@@ -1,5 +1,12 @@
 package com.example.social_networks;
 
+import com.example.social_networks.requirements_level1.operations.check_xml_consistency.Check_XML_Consistency;
+import com.example.social_networks.requirements_level1.operations.compress_xml.Compress_XML;
+import com.example.social_networks.requirements_level1.operations.conver_xml_to_json.Convert_XML_To_JSON;
+import com.example.social_networks.requirements_level1.operations.decompress_xml.Decompression_XML;
+import com.example.social_networks.requirements_level1.operations.format_xml.Format_XML;
+import com.example.social_networks.requirements_level1.operations.minify_xml.Minify_XML_Size;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,12 +90,12 @@ private void handleVerify(String input, String output, boolean fix) {
         Check_XML_Consistency checker = new Check_XML_Consistency();
 
         // Validate XML and print the result
-        String validationResult = checker.checkXMLConsistency(xml);
-        System.out.println(validationResult);
+        //String validationResult = checker.checkXMLConsistency(xml);
+        //System.out.println(validationResult);
 
         // Fix XML if requested
         if (fix && output != null) {
-            String fixedXML = checker.fixXML(xml);  // <-- Use fixXML instead of checkXMLConsistency
+            String fixedXML = checker.autoFix(xml);  // <-- Use fixXML instead of checkXMLConsistency
             Files.writeString(Path.of(output), fixedXML);
             System.out.println("Fixed XML saved to: " + output);
         }
