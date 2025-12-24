@@ -8,23 +8,19 @@ import java.io.IOException;
  *
  * @author Ahmad Aledlbi
  */
+import com.example.social_networks.requirements_level1.parsing_xml.Tag;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.ext.JGraphXAdapter;
-
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.util.mxCellRenderer;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
 
 public class DrawGraph {
 
-    static Vector<User> buildUsers(Vector<Tag> tags) {
+    public static Vector<User> buildUsers(Vector<Tag> tags) {
         Vector<User> users = new Vector<>();
         User currentUser = null;
         Post currentPost = null;
@@ -164,36 +160,3 @@ public class DrawGraph {
     }
 }
 
-class Post {
-
-    String body;
-    Vector<String> topics = new Vector<>();
-}
-
-class User {
-
-    int id;
-    String name;
-    Vector<Integer> followers = new Vector<>();
-    Vector<Post> posts = new Vector<>();
-}
-
-class Graph {
-
-    Vector<Vector<Integer>> adj;
-
-    Graph(int n) {
-        adj = new Vector<>();
-        for (int i = 0; i < n; i++) {
-            adj.add(new Vector<>());
-        }
-    }
-
-    void addEdge(int u, int v) {
-        adj.get(u).add(v);
-    }
-
-    Vector<Integer> neighbors(int u) {
-        return adj.get(u);
-    }
-}
