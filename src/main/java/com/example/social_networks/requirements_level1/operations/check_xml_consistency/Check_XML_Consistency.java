@@ -1,4 +1,5 @@
 package com.example.social_networks.requirements_level1.operations.check_xml_consistency;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -54,6 +55,7 @@ public class Check_XML_Consistency {
         }
     }
 
+    // ---------------- VALIDATE ----------------
     public List<checkXMLConsistency> validate(String xml) {
         List<checkXMLConsistency> errors = new ArrayList<>();
         Deque<OpenTag> stack = new ArrayDeque<>();
@@ -101,9 +103,10 @@ public class Check_XML_Consistency {
                 continue;
             }
 
+            // closing tag
             if (stack.isEmpty()) {
                 errors.add(new checkXMLConsistency(tok.line,
-                        "Extra closing tag </" + tok.name + "> with no matching opening tag."));
+                        "Missing opening tag <" + tok.name + "> for closing tag </" + tok.name + ">."));
                 continue;
             }
 
@@ -115,13 +118,14 @@ public class Check_XML_Consistency {
 
             int depthToMatch = findInStack(stack, tok.name);
 
+            // ✅ FIX HERE: if closing tag not found anywhere, it's missing opening tag
             if (depthToMatch == -1) {
                 errors.add(new checkXMLConsistency(tok.line,
-                        "Mismatched closing tag </" + tok.name + ">. Expected </" + top.name +
-                                "> to close <" + top.name + "> opened at line " + top.line + "."));
+                        "Missing opening tag <" + tok.name + "> for closing tag </" + tok.name + ">."));
                 continue;
             }
 
+            // close tags until we reach matching opening
             for (int k = 0; k < depthToMatch; k++) {
                 OpenTag missing = stack.pop();
                 errors.add(new checkXMLConsistency(tok.line,
@@ -129,6 +133,7 @@ public class Check_XML_Consistency {
                                 "> (opened at line " + missing.line + ")."));
             }
 
+            // pop the matched opening
             stack.pop();
         }
 
@@ -141,9 +146,13 @@ public class Check_XML_Consistency {
         return errors;
     }
 
+    // ---------------- AUTO FIX ----------------
     public String autoFix(String xml) {
         StringBuilder out = new StringBuilder();
         Deque<String> stack = new ArrayDeque<>();
+
+        // ✅ buffer text so we can wrap it if we see stray closing tags like 22</age>
+        StringBuilder textBuf = new StringBuilder();
 
         int i = 0;
         int line = 1;
@@ -154,19 +163,23 @@ public class Check_XML_Consistency {
 
             if (c == '\n') {
                 line++;
-                out.append(c);
+                textBuf.append(c);
                 i++;
                 continue;
             }
 
             if (c != '<') {
-                out.append(c);
+                textBuf.append(c);
                 i++;
                 continue;
             }
 
             int specialEnd = findAndSkipSpecial(xml, i);
             if (specialEnd > i) {
+                // flush buffered text before special
+                out.append(textBuf);
+                textBuf.setLength(0);
+
                 out.append(xml, i, specialEnd);
                 line += countNewlines(xml, i, specialEnd);
                 i = specialEnd;
@@ -175,6 +188,8 @@ public class Check_XML_Consistency {
 
             TagToken tok = readTagToken(xml, i, line);
             if (!tok.valid) {
+                out.append(textBuf);
+                textBuf.setLength(0);
                 out.append(xml.substring(i));
                 break;
             }
@@ -182,25 +197,44 @@ public class Check_XML_Consistency {
             line += countNewlines(xml, tok.startIndex, tok.endExclusive);
 
             if (tok.name.isEmpty()) {
+                out.append(textBuf);
+                textBuf.setLength(0);
                 out.append(tok.raw);
                 i = tok.endExclusive;
                 continue;
             }
 
             if (!tok.isClosing) {
+                out.append(textBuf);
+                textBuf.setLength(0);
+
                 out.append(tok.raw);
                 if (!tok.isSelfClosing) stack.push(tok.name);
                 i = tok.endExclusive;
                 continue;
             }
 
+            // closing tag
             if (stack.isEmpty()) {
-                i = tok.endExclusive; // drop extra closing
+                // ✅ Missing opener: if we have text, wrap it with <tag> ... </tag>
+                if (textBuf.toString().trim().length() > 0) {
+                    out.append("<").append(tok.name).append(">");
+                    out.append(textBuf);
+                    out.append("</").append(tok.name).append(">");
+                } else {
+                    out.append(textBuf); // keep whitespace
+                }
+                textBuf.setLength(0);
+
+                i = tok.endExclusive; // drop the stray closing tag itself
                 continue;
             }
 
             String top = stack.peek();
             if (matchTags(top, tok.name)) {
+                out.append(textBuf);
+                textBuf.setLength(0);
+
                 stack.pop();
                 out.append(tok.raw);
                 i = tok.endExclusive;
@@ -208,21 +242,40 @@ public class Check_XML_Consistency {
             }
 
             int depthToMatch = findInNameStack(stack, tok.name);
+
             if (depthToMatch == -1) {
-                i = tok.endExclusive; // drop closing with no opener
+                // ✅ Missing opener: wrap buffered text, drop closing
+                if (textBuf.toString().trim().length() > 0) {
+                    out.append("<").append(tok.name).append(">");
+                    out.append(textBuf);
+                    out.append("</").append(tok.name).append(">");
+                } else {
+                    out.append(textBuf);
+                }
+                textBuf.setLength(0);
+
+                i = tok.endExclusive;
                 continue;
             }
+
+            // We found tok.name deeper in stack: close everything above it
+            out.append(textBuf);
+            textBuf.setLength(0);
 
             for (int k = 0; k < depthToMatch; k++) {
                 String missing = stack.pop();
                 out.append("</").append(missing).append(">");
             }
 
-            stack.pop();
+            stack.pop(); // pop matching opener
             out.append(tok.raw);
             i = tok.endExclusive;
         }
 
+        // flush remaining text
+        out.append(textBuf);
+
+        // close remaining tags
         while (!stack.isEmpty()) {
             out.append("</").append(stack.pop()).append(">");
         }
@@ -230,6 +283,7 @@ public class Check_XML_Consistency {
         return out.toString();
     }
 
+    // ---------------- HELPERS ----------------
     private boolean matchTags(String openTag, String closeTag) {
         return openTag.equals(closeTag);
     }
