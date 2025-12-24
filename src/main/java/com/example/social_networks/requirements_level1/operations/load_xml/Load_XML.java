@@ -14,7 +14,7 @@ public class Load_XML {
         chooser.setTitle("Choose a TXT File");
 
         chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text Files (.txt)", ".txt")
+                new FileChooser.ExtensionFilter("Text & XML Files", "*.txt", "*.xml")
         );
 
         File file = chooser.showOpenDialog(stage);
