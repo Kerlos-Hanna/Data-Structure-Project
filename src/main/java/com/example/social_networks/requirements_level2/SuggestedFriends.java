@@ -6,7 +6,7 @@ package com.example.social_networks.requirements_level2;
  * @author jeremy
  */
 import java.util.*;
-public class Task6 {
+public class SuggestedFriends {
 
     static class Graph {
         // user -> users he follows
