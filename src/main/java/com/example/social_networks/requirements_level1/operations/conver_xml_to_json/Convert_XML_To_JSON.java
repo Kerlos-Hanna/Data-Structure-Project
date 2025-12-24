@@ -1,20 +1,33 @@
 package com.example.social_networks.requirements_level1.operations.conver_xml_to_json;
+
 import java.util.Vector;
 import java.util.Stack;
-public class Convert_XML_To_JSON { // to use this class you need to get a new object from it and pass the xml string and then use convert function and will return string of json 
-// like this  Convert_XML_To_JSON jsonstring = new Convert_XML_To_JSON(xml1) ;
-  //      String s = jsonstring.convert();
+
+public class Convert_XML_To_JSON { // to use this class you need to get a new object from it and pass the xml string and then use convert function and will return string of json
+    // like this  Convert_XML_To_JSON jsonstring = new Convert_XML_To_JSON(xml1) ;
+    //      String s = jsonstring.convert();
     private String xml;
+
     public Convert_XML_To_JSON(String xml) {
-        this.xml = xml.trim().replace("\n", "").replace("\r", "").replace("\t", "").replace(" " ,"");
+        this.xml = xml.trim().replace("\n", "").replace("\r", "").replace("\t", "").replace(" ", "");
     }
+
     private class Node {
         String tag;
         String text = "";
         Vector<Node> children = new Vector<>();
-        Node(String tag) { this.tag = tag; }
-        void addChild(Node child) { children.add(child); }
-        boolean hasChildren() { return children.size() > 0; }
+
+        Node(String tag) {
+            this.tag = tag;
+        }
+
+        void addChild(Node child) {
+            children.add(child);
+        }
+
+        boolean hasChildren() {
+            return children.size() > 0;
+        }
     }
 
     private class JSON {
@@ -40,7 +53,7 @@ public class Convert_XML_To_JSON { // to use this class you need to get a new ob
             arrayObjects.add(arr);
         }
 
-         private String print(int indent) { // this function is recrussively make the json string from json class
+        private String print(int indent) { // this function is recrussively make the json string from json class
             String s = "";
             s += indent(indent) + "{\n";
 
@@ -50,7 +63,7 @@ public class Convert_XML_To_JSON { // to use this class you need to get a new ob
             // Print simple key-value pairs
             for (int i = 0; i < keys.size(); i++, count++) {
                 s += indent(indent + 2) + "\"" + keys.get(i) + "\": \"" + values.get(i) + "\"";
-                if (count < total - 1){
+                if (count < total - 1) {
                     s += ",";
                 }
                 s += "\n";
@@ -104,23 +117,23 @@ public class Convert_XML_To_JSON { // to use this class you need to get a new ob
         int i = 0;
         while (i < xml.length()) {
             if (xml.charAt(i) == '<') {
-                            if (xml.charAt(i + 1) == '/') {
-                            int close = xml.indexOf('>', i);
-                            Node node = stack.pop();
-                            if (!stack.isEmpty()) {
-                                stack.peek().addChild(node);
-                            }
-                            i = close + 1;
-                            } else {
-                            int close = xml.indexOf('>', i);
-                            String tag = xml.substring(i + 1, close).trim();
-                            Node newNode = new Node(tag);
-                            if (root == null) {
-                                root = newNode;
-                            }
-                            stack.push(newNode);
-                            i = close + 1;
-                                    }
+                if (xml.charAt(i + 1) == '/') {
+                    int close = xml.indexOf('>', i);
+                    Node node = stack.pop();
+                    if (!stack.isEmpty()) {
+                        stack.peek().addChild(node);
+                    }
+                    i = close + 1;
+                } else {
+                    int close = xml.indexOf('>', i);
+                    String tag = xml.substring(i + 1, close).trim();
+                    Node newNode = new Node(tag);
+                    if (root == null) {
+                        root = newNode;
+                    }
+                    stack.push(newNode);
+                    i = close + 1;
+                }
             } else {
                 int nextTag = xml.indexOf('<', i);
                 if (nextTag == -1) {
@@ -151,8 +164,7 @@ public class Convert_XML_To_JSON { // to use this class you need to get a new ob
             int idx = childTags.indexOf(child.tag);
             if (idx != -1) {
                 groups.get(idx).add(child);
-            }
-            else {
+            } else {
                 childTags.add(child.tag);
                 Vector<Node> vec = new Vector<>();
                 vec.add(child);
@@ -166,8 +178,7 @@ public class Convert_XML_To_JSON { // to use this class you need to get a new ob
                 Node only = group.get(0);
                 if (only.hasChildren()) {
                     json.addObject(only.tag, convertToJSON(only));
-                }
-                else {
+                } else {
                     json.add(only.tag, only.text);
                 }
             } else {
@@ -183,18 +194,17 @@ public class Convert_XML_To_JSON { // to use this class you need to get a new ob
         return json;
     }
 
-     public String convert() { // this function do the whole operations of the xml to json converstion 
+    public String convert() { // this function do the whole operations of the xml to json converstion
         Node root = parseXML(); // first it fill the tree of the xml 
         if (root == null) // if nothing in the tree it returns just two brackets 
         {
             return "{}";
-        }                                   
+        }
         JSON json = new JSON(); // if not make a new json object 
         if (!root.hasChildren()) // travel in the tree and add the json
         {
             json.add(root.tag, root.text);
-        } else
-        {
+        } else {
             json.addObject(root.tag, convertToJSON(root));
         }
         return json.print(0); // use print function to return the json 
