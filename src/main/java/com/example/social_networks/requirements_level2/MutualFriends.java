@@ -13,7 +13,7 @@ public class MutualFriends {
      * @param v ID of the second user
      * @return List of mutual friend IDs
      */
-    public static List<Integer> getMutualFriends(Graph graph, int u, int v) {
+    public static List<Integer> getMutualFriends(MostActiveUser.Graph graph, int u, int v) {
         // 1. Get the list of neighbors (friends/followers) for both users 
         List<Integer> friendsU = graph.neighbors(u);
         List<Integer> friendsV = graph.neighbors(v);
