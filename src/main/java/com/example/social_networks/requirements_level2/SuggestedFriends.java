@@ -8,7 +8,7 @@ package com.example.social_networks.requirements_level2;
 import java.util.*;
 public class SuggestedFriends {
 
-    static class Graph {
+    public static class Graph {
         // user -> users he follows
         private Map<Integer, Set<Integer>> adj = new HashMap<>();
 
@@ -23,7 +23,7 @@ public class SuggestedFriends {
     }
 
     // -------- Suggestions Class --------//
-    static class Suggestions {
+    public static class Suggestions {
 
         public List<Integer> suggest(Graph g, int user) {
 
@@ -46,25 +46,4 @@ public class SuggestedFriends {
             return new ArrayList<>(suggested);
         }
     }
-
-    // -------- Main Method --------//
-    public static void main(String[] args) {
-
-        Graph g = new Graph();
-        g.addEdge(1, 2);
-        g.addEdge(1, 3);
-        g.addEdge(2, 4);
-        g.addEdge(3, 4);
-        g.addEdge(3, 5);
-        g.addEdge(6, 3);
-        g.addEdge(6, 2);
-        Suggestions s = new Suggestions();
-
-        List<Integer> result = s.suggest(g, 6);
-
-        System.out.println("Suggested followers for user 6:");
-        System.out.println(result);
-    }
 }
-
-
