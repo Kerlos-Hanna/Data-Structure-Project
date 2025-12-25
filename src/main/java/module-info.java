@@ -10,6 +10,9 @@ module com.example.social_networks {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires org.jgrapht.core;
+    requires org.jgrapht.ext;
+    requires java.desktop;
 
     opens com.example.social_networks to javafx.fxml;
     exports com.example.social_networks;
