@@ -25,7 +25,7 @@ import java.util.Vector;
 
 public class CommandLine {
    public static void main(String[] args) {
-        new CLI().run(args);
+       new CommandLine().run(args);
     }
 
     public void run(String[] args) {
