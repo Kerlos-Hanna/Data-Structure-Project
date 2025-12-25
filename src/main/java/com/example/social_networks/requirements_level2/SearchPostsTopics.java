@@ -1,48 +1,36 @@
 package com.example.social_networks.requirements_level2;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+
 import java.util.Vector;
 
-import com.mycompany.dsa.Parsing_XML ;
-import com.mycompany.dsa.Tag;
+public class SearchPostsTopics {
 
-public class SearchPostsTopics  {
+    /**
+     * Return all posts that contain a specific topic
+     */
+    public static Vector<Post> searchPostsByTopic(Vector<User> users, String topic) {
+        Vector<Post> result = new Vector<>();
 
-    // Return all topics (unique, in same order)
-    public List<String> listTopics(String xml) {
-        List<String> result = new ArrayList<>();
-        if (xml == null || xml.isBlank()) return result;
+        if (users == null || topic == null || topic.isBlank()) {
+            return result;
+        }
 
-        Vector<Tag> tags = Parsing_XML .parse(xml);
-        if (tags == null || tags.isEmpty()) return result;
+        String targetTopic = topic.trim().toLowerCase();
 
-        Set<String> unique = new LinkedHashSet<>();
+        for (User user : users) {
+            if (user == null || user.posts == null) continue;
 
-        for (Tag t : tags) {
-            if (t == null || t.name == null) continue;
+            for (Post post : user.posts) {
+                if (post == null || post.topics == null) continue;
 
-            // Your parser stores innerText in the OPENING tag object
-            if (t.isOpening && t.name.trim().equalsIgnoreCase("topic")) {
-                String topicText = (t.innerText == null) ? "" : t.innerText.trim();
-                if (!topicText.isEmpty()) unique.add(topicText);
+                for (String t : post.topics) {
+                    if (t != null && t.trim().toLowerCase().equals(targetTopic)) {
+                        result.add(post);
+                        break; // avoid duplicate add for same post
+                    }
+                }
             }
         }
 
-        result.addAll(unique);
         return result;
-    }
-
-    // Quick test
-    public static void main(String[] args) {
-        String xml =
-            "<network>" +
-              "<post><body>Hello</body><topics><topic>Sports</topic><topic>News</topic></topics></post>" +
-              "<post><body>Java tips</body><topics><topic>Tech</topic><topic>News</topic></topics></post>" +
-            "</network>";
-
-        SearchPostsTopics  lt = new SearchPostsTopics ();
-        System.out.println(lt.listTopics(xml)); // [Sports, News, Tech]
     }
 }
