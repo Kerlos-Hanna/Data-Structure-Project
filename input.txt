@@ -1,0 +1,272 @@
+<users>
+    <user>
+        <id>1</id>
+        <name>Ahmed Ali</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>economy</topic>
+                    <topic>finance</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>2</id></follower>
+            <follower><id>3</id></follower>
+            <follower><id>4</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>2</id>
+        <name>Yasser Ahmed</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>education</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>1</id></follower>
+            <follower><id>3</id></follower>
+            <follower><id>5</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>3</id>
+        <name>Mohamed Sherif</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>sports</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>1</id></follower>
+            <follower><id>2</id></follower>
+            <follower><id>6</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>4</id>
+        <name>Omar Hassan</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>technology</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>1</id></follower>
+            <follower><id>5</id></follower>
+            <follower><id>7</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>5</id>
+        <name>Ali Mahmoud</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>health</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>2</id></follower>
+            <follower><id>4</id></follower>
+            <follower><id>8</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>6</id>
+        <name>Hassan Adel</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>science</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>3</id></follower>
+            <follower><id>7</id></follower>
+            <follower><id>9</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>7</id>
+        <name>Khaled Samir</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>travel</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>4</id></follower>
+            <follower><id>6</id></follower>
+            <follower><id>10</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>8</id>
+        <name>Mostafa Nabil</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>food</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>5</id></follower>
+            <follower><id>9</id></follower>
+            <follower><id>11</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>9</id>
+        <name>Amr Fathy</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>business</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>6</id></follower>
+            <follower><id>8</id></follower>
+            <follower><id>12</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>10</id>
+        <name>Mahmoud Saeed</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>art</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>7</id></follower>
+            <follower><id>11</id></follower>
+            <follower><id>13</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>11</id>
+        <name>Sarah Ali</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>fashion</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>8</id></follower>
+            <follower><id>10</id></follower>
+            <follower><id>12</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>12</id>
+        <name>Ramy Mostafa</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>music</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>9</id></follower>
+            <follower><id>11</id></follower>
+            <follower><id>13</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>13</id>
+        <name>Laila Hassan</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>photography</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>10</id></follower>
+            <follower><id>12</id></follower>
+            <follower><id>14</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>14</id>
+        <name>Omar Khaled</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>gaming</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>13</id></follower>
+            <follower><id>15</id></follower>
+            <follower><id>1</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>15</id>
+        <name>Nour El-Sayed</name>
+        <posts>
+            <post>
+                <body>Lorem ipsum dolor sit amet.</body>
+                <topics>
+                    <topic>design</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>14</id></follower>
+            <follower><id>2</id></follower>
+            <follower><id>5</id></follower>
+        </followers>
+    </user>
+</users>
